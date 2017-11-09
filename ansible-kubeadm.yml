@@ -1,0 +1,66 @@
+
+- hosts: "{{hosts}}"
+
+  tasks:
+
+    - name: update apt cache
+      apt:
+        update_cache: yes
+
+    - name: install docker
+      apt: name=docker.io
+
+    - name: make sure docker is enabled
+      shell: systemctl enable docker # hack for ansible bug
+
+    - name: make sure docker is running
+      service:
+        state: started
+        name: docker
+
+    - name: install apt-transport-https
+      apt: name=apt-transport-https
+
+    - name: add kubernetes apt-key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+
+    - name: update apt cache
+      apt:
+        update_cache: yes
+
+    - name: swap off
+      shell: swapoff -a
+
+    - name: remove swap permanently
+      lineinfile:
+        dest: /etc/fstab
+        state: absent  
+        regexp: '^.*swap.*$' 
+
+    - name: install kubelet
+      apt: name=kubelet
+
+    - name: install kubeadm
+      apt: name=kubeadm
+
+    - name: install kubectl
+      apt: name=kubectl
+
+
+
+
+#    - name: kublet accept swap
+#      lineinfile:
+#        dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+#        insertafter: '.*\[Service\].*'
+#        line: 'Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false"'
+
+#    - name: make sure docker is enabled
+#      shell: systemctl daemon-reload
+
