@@ -58,6 +58,4 @@
     - name: run kubeadm init
       shell: kubeadm init --apiserver-advertise-address {{hosts}} --pod-network-cidr=192.168.0.0/16
 
-    - name: apply calico network plugin
-      shell: kubectl apply -f https://docs.projectcalico.org/v2.6/getting-started/kubernetes/installation/hosted/kubeadm/1.6/calico.yaml
 
