@@ -52,15 +52,7 @@
     - name: install kubectl
       apt: name=kubectl
 
+    - name: run kubeadm init
+      shell: kubeadm init
 
-
-
-#    - name: kublet accept swap
-#      lineinfile:
-#        dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-#        insertafter: '.*\[Service\].*'
-#        line: 'Environment="KUBELET_EXTRA_ARGS=--fail-swap-on=false"'
-
-#    - name: make sure docker is enabled
-#      shell: systemctl daemon-reload
 
