@@ -53,6 +53,6 @@
       apt: name=kubectl
 
     - name: run kubeadm init
-      shell: kubeadm init
+      shell: kubeadm init --apiserver-advertise-address {{hosts}}
 
 
