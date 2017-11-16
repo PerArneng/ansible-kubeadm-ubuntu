@@ -4,58 +4,103 @@
   tasks:
 
     - name: update apt cache
+      tags: kubernetes
       apt:
         update_cache: yes
 
     - name: install docker
+      tags: kubernetes
       apt: name=docker.io
 
     - name: make sure docker is enabled
+      tags: kubernetes
       shell: systemctl enable docker # hack for ansible bug
 
     - name: make sure docker is running
+      tags: kubernetes
       service:
         state: started
         name: docker
 
     - name: install apt-transport-https
+      tags: kubernetes
       apt: name=apt-transport-https
 
     - name: add kubernetes apt-key
+      tags: kubernetes
       apt_key:
         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
         state: present
-
-    - apt_repository:
+    
+    - name: add kubernetes apt repo
+      tags: kubernetes
+      apt_repository:
         repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
         state: present
 
     - name: update apt cache
+      tags: kubernetes
       apt:
         update_cache: yes
 
     - name: swap off
+      tags: kubernetes
       shell: swapoff -a
 
     - name: remove swap permanently
+      tags: kubernetes
       lineinfile:
         dest: /etc/fstab
         state: absent  
         regexp: '^.*swap.*$' 
     
     - name: pass bridged IPv4 traffic to iptables’ chains
+      tags: kubernetes
       shell: sysctl net.bridge.bridge-nf-call-iptables=1
 
     - name: install kubelet
+      tags: kubernetes
       apt: name=kubelet
 
     - name: install kubeadm
+      tags: kubernetes          
       apt: name=kubeadm
 
     - name: install kubectl
+      tags: kubernetes
       apt: name=kubectl
 
     - name: run kubeadm init
+      tags: kubernetes
       shell: kubeadm init --apiserver-advertise-address {{hosts}} --pod-network-cidr=192.168.0.0/16
 
+    - name: create kubernetes in users home directory
+      tags: userconfig
+      become: yes
+      become_user: "{{user}}"
+      file:
+        path: "/home/{{user}}/.kube"
+        state: directory
+        force: no
+        recurse: yes
 
+    - name: copy config file
+      tags: userconfig
+      copy:
+        remote_src: yes
+        src: "/etc/kubernetes/admin.conf" 
+        dest: "/home/{{user}}/.kube/config"
+        owner: "{{user}}"
+        group: "{{user}}"
+
+    - name: add network plugin to kubernetes
+      tags: userconfig
+      become: yes
+      become_user: "{{user}}"
+      shell: kubectl apply -f https://docs.projectcalico.org/v2.6/getting-started/kubernetes/installation/hosted/kubeadm/1.6/calico.yaml
+
+    - name: make the master node run pods
+      tags: userconfig
+      become: yes
+      become_user: "{{user}}"
+      shell: kubectl taint nodes --all node-role.kubernetes.io/master-
