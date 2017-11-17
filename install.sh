@@ -21,4 +21,4 @@ ansible-playbook \
     --ask-become-pass -i "$remote_host," \
     -c ssh \
     --become-method=sudo --become \
-    --extra-vars="hosts=$remote_host, user=$remote_user" --tags "kubernetes,userconfig" ansible-kubeadm.yml
+    --extra-vars="hosts=$remote_host, user=$remote_user" --tags "kubernetes,userconfig,helm,dashboard" ansible-kubeadm.yml
