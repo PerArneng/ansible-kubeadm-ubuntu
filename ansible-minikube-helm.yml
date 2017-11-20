@@ -1,0 +1,47 @@
+
+- hosts: "{{hosts}}"
+
+  tasks:
+
+    #
+    # INSTALL HELM
+    #
+
+    - name: download helm
+      tags: helm  
+      get_url: 
+        url: https://kubernetes-helm.storage.googleapis.com/helm-v2.7.2-linux-amd64.tar.gz
+        dest: /tmp/helm.tar.gz
+      when: helm_installed.stat.exists == False
+
+    - name: extract helm # bug in unarchive that made me use shell
+      tags: helm
+      shell: tar xvfz /tmp/helm.tar.gz -C /tmp
+      when: helm_installed.stat.exists == False
+
+    - name: copy helm
+      tags: helm
+      copy:
+        remote_src: yes
+        src: /tmp/linux-amd64/helm
+        dest: /usr/bin/helm
+        mode: ugo+rx
+      when: helm_installed.stat.exists == False
+
+    - name: check if inited
+      tags: helm
+      stat: path=/home/{{user}}/.helm
+      register: helm_inited
+
+    - name: helm init
+      tags: helm
+      become: yes
+      become_user: "{{user}}"
+      shell: helm init
+      when: helm_inited.stat.exists == False
+
+    - name: install the kubernetes dashboard
+      tags: dashboard
+      become: yes
+      become_user: "{{user}}"
+      shell: helm install stable/kubernetes-dashboard
