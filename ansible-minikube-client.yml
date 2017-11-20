@@ -1,0 +1,34 @@
+
+- hosts: "{{hosts}}"
+
+  tasks:
+
+    - name: update apt cache
+      tags: kubectl
+      apt:
+        update_cache: yes
+
+    - name: install apt-transport-https
+      tags: kubernetes
+      apt: name=apt-transport-https
+
+    - name: add kubernetes apt-key
+      tags: kubectl
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+    
+    - name: add kubernetes apt repo
+      tags: kubectl
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+
+    - name: update apt cache
+      tags: kubectl
+      apt:
+        update_cache: yes
+    
+    - name: install kubectl
+      tags: kubectl
+      apt: name=kubectl
