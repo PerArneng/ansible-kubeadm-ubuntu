@@ -7,6 +7,11 @@
     # INSTALL HELM
     #
 
+    - name: check if installed
+      tags: helm
+      stat: path=/usr/bin/helm
+      register: helm_installed
+
     - name: download helm
       tags: helm  
       get_url: 

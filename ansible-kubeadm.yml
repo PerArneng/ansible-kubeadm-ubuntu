@@ -111,15 +111,17 @@
       become_user: "{{user}}"
       shell: kubectl taint nodes --all node-role.kubernetes.io/master-
 
-    - name: check if installed
-      tags: helm
-      stat: path=/usr/bin/helm
-      register: helm_installed
+
 
 
     #
     # INSTALL HELM
     #
+
+    - name: check if installed
+      tags: helm
+      stat: path=/usr/bin/helm
+      register: helm_installed
 
     - name: download helm
       tags: helm  

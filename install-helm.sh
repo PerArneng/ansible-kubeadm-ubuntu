@@ -15,4 +15,4 @@ ansible-playbook \
     --ask-become-pass -i "localhost," \
     -c local \
     --become-method=sudo --become \
-    --extra-vars="hosts=$remote_host, user=$remote_user" --tags "kubectl" ansible-minikube-client.yml
+    --extra-vars="hosts=$remote_host, user=$remote_user" --tags "helm" helm.yml
